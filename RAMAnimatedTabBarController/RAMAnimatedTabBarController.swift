@@ -44,13 +44,13 @@ class RAMAnimatedTabBarItem: UITabBarItem {
     }
 }
 
-class RAMAnimatedTabBarController: UITabBarController {
+public class RAMAnimatedTabBarController: UITabBarController {
 
     var iconsView: [(icon: UIImageView, textLabel: UILabel)] = []
 
 // MARK: life circle
 
-    override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
 
         let containers = createViewContainers()
