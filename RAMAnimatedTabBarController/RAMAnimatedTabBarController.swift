@@ -25,8 +25,8 @@ import UIKit
 class RAMAnimatedTabBarItem: UITabBarItem {
 
     @IBOutlet weak var animation: RAMItemAnimation?
-    @IBInspectable var textColor = UIColor.blackColor()
-
+    @IBInspectable var textColor = UIColor.whiteColor()
+    
     func playAnimation(icon: UIImageView, textLabel: UILabel){
         guard let animation = animation else {
             print("add animation in UITabBarItem")
@@ -46,7 +46,7 @@ class RAMAnimatedTabBarItem: UITabBarItem {
 
 public class RAMAnimatedTabBarController: UITabBarController {
 
-    var iconsView: [(icon: UIImageView, textLabel: UILabel)] = []
+    var iconsView: [(icon: UIImageView, selectedIcon: UIImageView, textLabel: UILabel)] = []
 
 // MARK: life circle
 
@@ -80,7 +80,7 @@ public class RAMAnimatedTabBarController: UITabBarController {
 
                 let icon = UIImageView(image: item.image)
                 icon.translatesAutoresizingMaskIntoConstraints = false
-                icon.tintColor = UIColor.clearColor()
+                icon.tintColor = UIColor.whiteColor()
 
                 // text
                 let textLabel = UILabel()
@@ -94,7 +94,7 @@ public class RAMAnimatedTabBarController: UITabBarController {
                 container.addSubview(icon)
                 
                 if let itemImage = item.image {
-                    createConstraints(icon, container: container, size: itemImage.size, yOffset: -5)
+                    createConstraints(icon, container: container, size: itemImage.size, yOffset: 0)
                 }
 
                 container.addSubview(textLabel)
@@ -104,11 +104,14 @@ public class RAMAnimatedTabBarController: UITabBarController {
                     createConstraints(textLabel, container: container, size: CGSize(width: textLabelWidth , height: 10), yOffset: 16)
                 }
 
-                let iconsAndLabels = (icon:icon, textLabel:textLabel)
+                let selectedIcon = self.addBottomBorder(container)
+                selectedIcon.hidden = true
+                let iconsAndLabels = (icon:icon, selectedIcon:selectedIcon, textLabel:textLabel)
                 iconsView.append(iconsAndLabels)
 
                 if 0 == index { // selected first elemet
                     item.selectedState(icon, textLabel: textLabel)
+                    selectedIcon.hidden = false
                 }
 
                 item.image = nil
@@ -156,6 +159,32 @@ public class RAMAnimatedTabBarController: UITabBarController {
         view.addConstraint(constH)
     }
 
+    func addBottomBorder(view: UIView, margins: CGFloat = 20) -> UIImageView {
+        let border = UIImageView(image: UIImage(named: "selected_tab"))
+        border.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(border)
+        let height = border.image!.size.height
+        border.addConstraint(NSLayoutConstraint(item: border,
+            attribute: NSLayoutAttribute.Height,
+            relatedBy: NSLayoutRelation.Equal,
+            toItem: nil,
+            attribute: NSLayoutAttribute.Height,
+            multiplier: 1, constant: height))
+        view.addConstraint(NSLayoutConstraint(item: border,
+            attribute: NSLayoutAttribute.Bottom,
+            relatedBy: NSLayoutRelation.Equal,
+            toItem: view,
+            attribute: NSLayoutAttribute.Bottom,
+            multiplier: 1, constant: 0))
+        view.addConstraint(NSLayoutConstraint(item: border,
+            attribute: NSLayoutAttribute.CenterX,
+            relatedBy: NSLayoutRelation.Equal,
+            toItem: view,
+            attribute: NSLayoutAttribute.CenterX,
+            multiplier: 1, constant: 0))
+        return border
+    }
+    
     func createViewContainers() -> [String: UIView] {
 
         var containersDict = [String: UIView]()
@@ -231,10 +260,14 @@ public class RAMAnimatedTabBarController: UITabBarController {
             let animationItem : RAMAnimatedTabBarItem = items[currentIndex]
             let icon = iconsView[currentIndex].icon
             let textLabel = iconsView[currentIndex].textLabel
+            let selectedIcon = iconsView[currentIndex].selectedIcon
+            selectedIcon.hidden = false
             animationItem.playAnimation(icon, textLabel: textLabel)
 
             let deselelectIcon = iconsView[selectedIndex].icon
             let deselelectTextLabel = iconsView[selectedIndex].textLabel
+            let deselelectSelectedIcon = iconsView[selectedIndex].selectedIcon
+            deselelectSelectedIcon.hidden = true
             let deselectItem = items[selectedIndex]
             deselectItem.deselectAnimation(deselelectIcon, textLabel: deselelectTextLabel)
 
